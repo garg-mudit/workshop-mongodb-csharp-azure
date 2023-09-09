@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+
 using MoviesListingDemoApp.Models;
 using MoviesListingDemoApp.Services;
 
@@ -9,7 +10,7 @@ namespace MoviesListingDemoApp.Controllers;
 public class MoviesController : Controller
 {
     private readonly MongoDBService _mongoDBService;
-    
+
     public MoviesController(MongoDBService mongoDBService)
     {
         _mongoDBService = mongoDBService;
@@ -22,7 +23,9 @@ public class MoviesController : Controller
     [HttpGet]
     public async Task<List<Movie>> Get()
     {
-        return Enumerable.Empty<Movie>().ToList();
+        var movies = await _mongoDBService.GetAsync();
+
+        return movies;
     }
 
     /// <summary>
@@ -33,6 +36,7 @@ public class MoviesController : Controller
     [HttpPost]
     public async Task<IActionResult> Post([FromBody] Movie movie)
     {
+        await _mongoDBService.CreateAsync(movie);
         return Ok();
     }
 
@@ -45,6 +49,7 @@ public class MoviesController : Controller
     [HttpPut("{id}")]
     public async Task<IActionResult> AddToGenres(string id, [FromBody] string genre)
     {
+        await _mongoDBService.UpdateGenre(id, genre);
         return Ok();
     }
 
@@ -56,7 +61,8 @@ public class MoviesController : Controller
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(string id)
     {
+        await _mongoDBService.DeleteAsync(id);
         return Ok();
     }
 
-}
+}   

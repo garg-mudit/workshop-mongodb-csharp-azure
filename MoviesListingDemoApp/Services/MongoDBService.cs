@@ -1,8 +1,12 @@
 using Microsoft.Extensions.Options;
+
 using MongoDB.Bson;
 using MongoDB.Driver;
+
 using MoviesListingDemoApp.Models;
 using MoviesListingDemoApp.Settings;
+
+using System.Linq;
 
 namespace MoviesListingDemoApp.Services;
 
@@ -27,9 +31,11 @@ public class MongoDBService
     /// <returns></returns>
     public async Task<List<Movie>> GetAsync()
     {
-        return null;
+        var filter = Builders<Movie>.Filter.Empty;
+
+        return await _moviesCollection.Find(filter).ToListAsync();
     }
-    
+
 
     /// <summary>
     /// Create a movie document in the collection
@@ -37,7 +43,7 @@ public class MongoDBService
     /// <param name="movie"></param>
     public async Task CreateAsync(Movie movie)
     {
-        return;
+        await _moviesCollection.InsertOneAsync(movie);
     }
 
     /// <summary>
@@ -47,16 +53,23 @@ public class MongoDBService
     /// <param name="genre"></param>
     public async Task UpdateGenre(string id, string genre)
     {
-        return;
+        var filter = Builders<Movie>.Filter
+            .Eq(nameof(Movie.Id), id);
+        var update = Builders<Movie>.Update.AddToSet(nameof(Movie.Genres), genre);
+
+        var result = await _moviesCollection.UpdateOneAsync(filter, update);
     }
-    
+
     /// <summary>
     /// Delete an existing document in the collection
     /// </summary>
     /// <param name="id"></param>
     public async Task DeleteAsync(string id)
     {
-        return;
+        var filter = Builders<Movie>.Filter
+            .Eq(nameof(Movie.Id), id);
+
+        await _moviesCollection.DeleteOneAsync(filter);
     }
 
 }
